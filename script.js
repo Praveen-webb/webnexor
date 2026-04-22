@@ -1,33 +1,28 @@
-// Form Submission Handler
+// Form validation (optional, since HTML5 validation is used)
 document.addEventListener("DOMContentLoaded", function () {
   const contactForm = document.getElementById("contactForm");
   if (contactForm) {
     contactForm.addEventListener("submit", function (event) {
-      event.preventDefault();
-      
-      // Get form data
+      // Basic validation
       const name = document.getElementById("name").value.trim();
       const email = document.getElementById("email").value.trim();
       const phone = document.getElementById("phone").value.trim();
       const service = document.getElementById("service").value;
       const message = document.getElementById("message").value.trim();
       
-      // Validate form fields
       if (!name || !email || !phone || !service || !message) {
         alert("Please fill in all required fields!");
-        return;
+        event.preventDefault();
+        return false;
       }
       
       // Validate email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
         alert("Please enter a valid email address!");
-        return;
+        event.preventDefault();
+        return false;
       }
-      
-      // Show success message
-      alert("Thanks for your submission! We'll contact you within 24 hours.");
-      contactForm.reset();
     });
   }
 });
@@ -56,3 +51,41 @@ if (navbarCollapse) {
     });
   });
 }
+
+
+const form = document.getElementById('form');
+const submitBtn = form.querySelector('button[type="submit"]');
+
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(form);
+    formData.append("access_key", "a6d29771-4f14-434c-82e2-b61d576fb029");
+
+    const originalText = submitBtn.textContent;
+
+    submitBtn.textContent = "Sending...";
+    submitBtn.disabled = true;
+
+    try {
+        const response = await fetch("https://api.web3forms.com/submit", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            alert("Success! Your message has been sent.");
+            form.reset();
+        } else {
+            alert("Error: " + data.message);
+        }
+
+    } catch (error) {
+        alert("Something went wrong. Please try again.");
+    } finally {
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+    }
+});
